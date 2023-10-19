@@ -228,6 +228,8 @@ module AnnotateModels
         info << "#--\n"
         info << "# #{END_MARK}\n"
         info << "#++\n"
+      elsif options[:with_trailing_newline]
+        info << "\n"
       else
         info << "#\n"
       end
@@ -492,7 +494,8 @@ module AnnotateModels
         return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
 
         wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
-        content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
+        content_end = options[:with_trailing_newline] ? "\n" : ''
+        content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, content_end)
 
         File.open(file_name, 'wb') { |f| f.puts content }
 
