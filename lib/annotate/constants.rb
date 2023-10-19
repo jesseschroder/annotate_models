@@ -25,7 +25,7 @@ module Annotate
     OTHER_OPTIONS = [
       :additional_file_patterns, :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close,
       :wrapper, :routes, :models, :hide_limit_column_types, :hide_default_column_types,
-      :ignore_routes, :active_admin
+      :ignore_routes, :active_admin, :with_trailing_newline
     ].freeze
 
     PATH_OPTIONS = [

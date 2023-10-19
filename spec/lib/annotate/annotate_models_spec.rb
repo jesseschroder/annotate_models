@@ -1449,6 +1449,35 @@ describe AnnotateModels do
                 end
               end
             end
+
+            context 'when "with_trailing_newline" is specified in options' do
+              let :options do
+                { with_trailing_newline: true }
+              end
+
+              let :columns do
+                [
+                  mock_column(:id, :integer, limit: 8),
+                  mock_column(:name, :string, limit: 50)
+                ]
+              end
+
+              let :expected_result do
+                <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: users
+                    #
+                    #  id   :integer          not null, primary key
+                    #  name :string(50)       not null
+
+                EOS
+              end
+
+              it 'works with option "with_trailing_newline"' do
+                is_expected.to eq expected_result
+              end
+            end
           end
         end
       end
@@ -2527,7 +2556,7 @@ describe AnnotateModels do
 
   describe '.remove_annotation_of_file' do
     subject do
-      AnnotateModels.remove_annotation_of_file(path)
+      AnnotateModels.remove_annotation_of_file(path, options)
     end
 
     after :each do
@@ -2556,6 +2585,10 @@ describe AnnotateModels do
         class Foo < ActiveRecord::Base
         end
       EOS
+    end
+
+    let :options do
+      {}
     end
 
     context 'when annotation is before main content' do
@@ -2756,6 +2789,43 @@ describe AnnotateModels do
       end
 
       it 'does not remove annotation' do
+        expect(file_content_after_removal).to eq expected_result
+      end
+    end
+
+    context 'when option "with_trailing_newline" is specified' do
+      let :options do
+        { with_trailing_newline: true }
+      end
+
+      let :filename do
+        'before.rb'
+      end
+
+      let :file_content do
+        <<~EOS
+          # == Schema Information
+          #
+          # Table name: foo
+          #
+          #  id                  :integer         not null, primary key
+          #  created_at          :datetime
+          #  updated_at          :datetime
+
+          class Foo < ActiveRecord::Base
+          end
+        EOS
+      end
+
+      let :expected_result do
+        <<~EOS
+
+          class Foo < ActiveRecord::Base
+          end
+        EOS
+      end
+
+      it 'removes annotation and leaves newline before class declaration' do
         expect(file_content_after_removal).to eq expected_result
       end
     end
