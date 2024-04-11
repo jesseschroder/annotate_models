@@ -208,6 +208,10 @@ module AnnotateModels
       end
 
       info << get_schema_footer_text(klass, options)
+
+      info.chomp!("#\n") if options[:with_trailing_newline]
+
+      info
     end
 
     def get_schema_header_text(klass, options = {})
@@ -228,8 +232,6 @@ module AnnotateModels
         info << "#--\n"
         info << "# #{END_MARK}\n"
         info << "#++\n"
-      elsif options[:with_trailing_newline]
-        info << "\n"
       else
         info << "#\n"
       end
@@ -461,6 +463,8 @@ module AnnotateModels
                         magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
                       elsif magic_comments_block.empty?
                         magic_comments_block + wrapped_info_block + old_content.lstrip
+                      elsif options[:with_trailing_newline]
+                        magic_comments_block + "\n" + wrapped_info_block + old_content
                       else
                         magic_comments_block + "\n" + wrapped_info_block + old_content.lstrip
                       end
