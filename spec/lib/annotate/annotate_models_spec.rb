@@ -1468,12 +1468,12 @@ describe AnnotateModels do
 
               let :expected_result do
                 <<~EOS
-                    # Schema Info
-                    #
-                    # Table name: users
-                    #
-                    #  id   :integer          not null, primary key
-                    #  name :string(50)       not null
+                  # Schema Info
+                  #
+                  # Table name: users
+                  #
+                  #  id   :integer          not null, primary key
+                  #  name :string(50)       not null
 
                 EOS
               end
