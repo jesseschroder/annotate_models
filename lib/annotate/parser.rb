@@ -309,6 +309,11 @@ module Annotate
                        "include database comments in model annotations, as its own column, after all others") do
         env['with_comment_column'] = 'true'
       end
+
+      option_parser.on('--with-trailing-newline',
+                       "include a trailing newline in the annotation") do
+        env['with_trailing_newline'] = 'true'
+      end
     end
   end
 end

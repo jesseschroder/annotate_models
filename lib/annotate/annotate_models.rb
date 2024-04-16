@@ -39,7 +39,7 @@ module AnnotateModels
     }
   }.freeze
 
-  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/).freeze
+  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))|(^#\s*typed:.+(?:\n|\r\n))/).freeze
 
   class << self
     def annotate_pattern(options = {})
@@ -208,6 +208,10 @@ module AnnotateModels
       end
 
       info << get_schema_footer_text(klass, options)
+
+      info.chomp!("#\n") if options[:with_trailing_newline]
+
+      info
     end
 
     def get_schema_header_text(klass, options = {})
@@ -459,6 +463,8 @@ module AnnotateModels
                         magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
                       elsif magic_comments_block.empty?
                         magic_comments_block + wrapped_info_block + old_content.lstrip
+                      elsif options[:with_trailing_newline]
+                        magic_comments_block + "\n" + wrapped_info_block + old_content
                       else
                         magic_comments_block + "\n" + wrapped_info_block + old_content.lstrip
                       end
@@ -492,7 +498,8 @@ module AnnotateModels
         return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
 
         wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
-        content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
+        content_end = options[:with_trailing_newline] ? "\n" : ''
+        content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, content_end)
 
         File.open(file_name, 'wb') { |f| f.puts content }
 
